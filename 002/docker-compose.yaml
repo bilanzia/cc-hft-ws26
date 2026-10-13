@@ -1,0 +1,23 @@
+services:
+  worker-db:
+    hostname: worker-db
+    container_name: worker-db
+    image: postgres:17-alpine
+    command: >
+      postgres
+      -c listen_addresses=*
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: superSecret123!
+      POSTGRES_DB: postgres
+    restart: unless-stopped
+    volumes:
+      - worker-db:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "stackit", "-d", "postgres" ]
+      interval: 1s
+      retries: 120
+volumes:
+  worker-db:
