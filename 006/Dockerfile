@@ -2,10 +2,10 @@
 # Globale Versionen (Zentrale Pflege)
 # ==========================================
 ARG GO_VERSION=1.27
-ARG GO_HASH=sha256:d8c2c8f61535496a782e44d856d2a715f5c3574d538e1b65e90f230f6a27e7f9
+ARG GO_HASH=sha256:fa3d596898d9f126af7c01d14ee7597bab3f39cccf392ef36b69fe77cd681f18
 
-ARG ALPINE_VERSION=3.20
-ARG ALPINE_HASH=sha256:b89d9c93e9ed3597455c90a0b88a8bbb5cb7188438f70953fce22d6c84d0d10b
+ARG ALPINE_VERSION=3.24
+ARG ALPINE_HASH=sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf
 
 # ==========================================
 # Build-Stage
@@ -31,7 +31,8 @@ COPY main.go ./
 
 # Kompilieren mit Flags zur Größenoptimierung
 RUN --mount=type=cache,target=/root/.cache/go-build \
-    go build -ldflags="-w -s" -o /jobservice main.go
+    go build -ldflags="-w -s" -o /nats-demo \
+    main.go
 
 # ==========================================
 # Run-Stage
@@ -48,14 +49,15 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 WORKDIR /app
 
 # Binary aus der Build-Stage kopieren
-COPY --from=builder /build/jobservice ./jobservice
+COPY --from=builder /nats-demo ./nats-demo
+
 
 # Ownership auf den neuen User übertragen
-RUN chown appuser:appgroup ./jobservice
+RUN chown appuser:appgroup ./nats-demo
 
 # Ab hier läuft der Container als eingeschränkter Nutzer
 USER appuser
 
 EXPOSE 8080
 
-CMD ["./jobservice"]
+CMD ["./nats-demo"]

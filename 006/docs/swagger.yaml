@@ -1,0 +1,55 @@
+basePath: /v1
+definitions:
+  main.JobData:
+    properties:
+      channels:
+        items:
+          type: string
+        type: array
+      job_id:
+        type: string
+    type: object
+  main.Response:
+    properties:
+      status:
+        example: accepted
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: CloudEvents Producer via NATS.
+  title: NATS Job Service API
+  version: "1.0"
+paths:
+  /jobs:notify:
+    post:
+      consumes:
+      - application/json
+      description: Accepts a job and publishes it as a CloudEvent to NATS
+      parameters:
+      - description: Job Information
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.JobData'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Successfully sent to NATS
+          schema:
+            $ref: '#/definitions/main.Response'
+        "400":
+          description: Invalid JSON body
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Notify new job
+      tags:
+      - jobs
+swagger: "2.0"
