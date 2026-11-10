@@ -1,0 +1,24 @@
+services:
+  nats:
+    image: nats:alpine
+    ports:
+      - "4222:4222"
+    command: ["-js"] # Startet NATS optional direkt mit JetStream-Support
+
+  producer:
+    build: .
+    environment:
+      - APP_MODE=producer
+      - NATS_URL=nats://nats:4222
+    ports:
+      - "8080:8080"
+    depends_on:
+      - nats
+
+  consumer:
+    build: .
+    environment:
+      - APP_MODE=consumer
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - nats
